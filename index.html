@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Microsoft 365 Admin Center</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#0078d4;--blue-dk:#005a9e;--blue-lt:#eff6fc;
+  --green:#107c10;--green-lt:#dff6dd;
+  --red:#a80000;--red-lt:#fde7e9;
+  --orange:#d83b01;--orange-lt:#fff4ce;
+  --g1:#faf9f8;--g2:#f3f2f1;--g3:#edebe9;--g4:#d2d0ce;
+  --g6:#a19f9d;--g7:#605e5c;--g8:#3b3a39;--g9:#201f1e;
+  --white:#fff;
+  --font:'Segoe UI',system-ui,sans-serif;
+  --sh:0 1px 4px rgba(0,0,0,.1);
+  --sh2:0 4px 16px rgba(0,0,0,.18);
+}
+body{font-family:var(--font);background:var(--g2);color:var(--g9);font-size:14px;overflow:hidden;height:100vh}
+#topbar{height:48px;background:var(--blue);display:flex;align-items:center;padding:0 12px;gap:8px;
+  position:fixed;top:0;left:0;right:0;z-index:100;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.tb-btn{background:none;border:none;cursor:pointer;color:#fff;width:32px;height:32px;
+  display:flex;align-items:center;justify-content:center;border-radius:2px;flex-shrink:0;transition:background .15s}
+.tb-btn:hover{background:rgba(255,255,255,.18)}
+#topbar .brand{color:#fff;font-size:13px;font-weight:600;white-space:nowrap}
+#topbar .spacer{flex:1}
+.tb-search{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.18);
+  border-radius:2px;padding:5px 12px;min-width:200px}
+.tb-search input{border:none;background:none;color:#fff;font-size:13px;outline:none;width:150px}
+.tb-search input::placeholder{color:rgba(255,255,255,.65)}
+.avatar{width:30px;height:30px;border-radius:50%;background:#fff;display:flex;align-items:center;
+  justify-content:center;font-size:11px;font-weight:700;color:var(--blue);cursor:pointer;flex-shrink:0}
+.notif-wrap{position:relative}
+.notif-dot{position:absolute;top:5px;right:5px;width:7px;height:7px;background:#ff3333;
+  border-radius:50%;border:1.5px solid var(--blue)}
+#layout{display:flex;height:calc(100vh - 48px);margin-top:48px}
+#sidebar{width:220px;background:var(--white);border-right:1px solid var(--g3);
+  display:flex;flex-direction:column;flex-shrink:0;transition:width .2s;overflow:hidden}
+#sidebar.collapsed{width:48px}
+.nav-list{flex:1;padding:6px 0;overflow-y:auto}
+.nav-btn{display:flex;align-items:center;gap:10px;padding:9px 14px;cursor:pointer;
+  border:none;background:none;width:100%;text-align:left;border-left:3px solid transparent;
+  color:var(--g8);font-size:13px;font-family:var(--font);transition:background .12s;white-space:nowrap}
+.nav-btn:hover{background:var(--g2)}
+.nav-btn.active{background:var(--blue-lt);border-left-color:var(--blue);color:var(--blue);font-weight:600}
+.nav-ico{width:18px;height:18px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.nav-badge{margin-left:auto;font-size:10px;background:var(--blue-lt);color:var(--blue);
+  padding:1px 6px;border-radius:10px;font-weight:600}
+.sidebar-foot{padding:12px 14px;border-top:1px solid var(--g3)}
+.sidebar-foot p{font-size:11px;color:var(--g6)}
+#sidebar.collapsed .nav-lbl,#sidebar.collapsed .nav-badge,#sidebar.collapsed .sidebar-foot{display:none}
+#sidebar.collapsed .nav-btn{padding:9px 13px}
+#main{flex:1;overflow-y:auto;padding:24px 28px}
+.section{display:none}
+.section.active{display:block}
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px}
+.sec-title{font-size:20px;font-weight:600;color:var(--g9)}
+.sec-sub{font-size:12px;color:var(--g6);margin-top:2px}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:2px;
+  font-size:13px;font-weight:500;cursor:pointer;border:none;font-family:var(--font);transition:background .12s}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-primary:hover{background:var(--blue-dk)}
+.btn-secondary{background:var(--white);color:var(--g8);border:1px solid var(--g4)}
+.btn-secondary:hover{background:var(--g2)}
+.btn-danger{background:var(--red);color:#fff}
+.btn-danger:hover{background:#7a0000}
+.btn-sm{padding:4px 10px;font-size:12px}
+.btn-icon{padding:4px 7px}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.stat-card{background:var(--white);border:1px solid var(--g3);border-radius:2px;padding:18px 20px;box-shadow:var(--sh)}
+.stat-ico-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.stat-ico{width:34px;height:34px;border-radius:2px;display:flex;align-items:center;justify-content:center}
+.stat-lbl{font-size:12px;color:var(--g6);font-weight:500}
+.stat-val{font-size:30px;font-weight:700;line-height:1}
+.stat-sub{font-size:11px;color:var(--g6);margin-top:2px}
+.tbl-wrap{background:var(--white);border:1px solid var(--g3);border-radius:2px;overflow:hidden;box-shadow:var(--sh)}
+.tbl-search{padding:9px 14px;border-bottom:1px solid var(--g3);display:flex;align-items:center;gap:8px}
+.tbl-search input{border:none;outline:none;font-size:13px;color:var(--g9);flex:1;font-family:var(--font)}
+table{width:100%;border-collapse:collapse}
+thead th{padding:9px 16px;text-align:left;font-size:12px;font-weight:600;color:var(--g6);
+  background:var(--g1);border-bottom:1px solid var(--g3);white-space:nowrap}
+tbody tr{border-bottom:1px solid var(--g2);transition:background .1s}
+tbody tr:hover{background:#f0f7fd}
+tbody tr:last-child{border-bottom:none}
+td{padding:9px 16px;font-size:13px;vertical-align:middle}
+.tbl-foot{padding:8px 16px;background:var(--g1);border-top:1px solid var(--g3);font-size:12px;color:var(--g6)}
+.tbl-hdr{padding:12px 16px;background:var(--g1);border-bottom:1px solid var(--g3);font-size:13px;font-weight:600}
+.badge{display:inline-block;padding:2px 9px;border-radius:12px;font-size:11px;font-weight:600}
+.b-ok{background:var(--green-lt);color:var(--green)}
+.b-err{background:var(--red-lt);color:var(--red)}
+.b-info{background:var(--blue-lt);color:var(--blue)}
+.b-neutral{background:var(--g3);color:var(--g7)}
+.u-cell{display:flex;align-items:center;gap:10px}
+.u-avatar{width:30px;height:30px;border-radius:50%;background:var(--blue);display:flex;
+  align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;flex-shrink:0}
+.u-name{font-weight:500;font-size:13px}
+.u-email{font-size:11px;color:var(--g6)}
+.prog{height:5px;background:var(--g3);border-radius:3px;overflow:hidden;margin-top:5px;width:130px}
+.prog-fill{height:100%;border-radius:3px}
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.card{background:var(--white);border:1px solid var(--g3);border-radius:2px;box-shadow:var(--sh)}
+.card-hdr{padding:12px 16px;border-bottom:1px solid var(--g3);background:var(--g1);font-size:13px;font-weight:600}
+.card-body{padding:16px}
+.dash-ur{display:flex;align-items:center;gap:10px;padding:9px 16px;border-bottom:1px solid var(--g2)}
+.dash-ur:last-child{border-bottom:none}
+.sec-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.sec-metric{background:var(--white);border:1px solid var(--g3);border-radius:2px;padding:16px 18px}
+.sm-lbl{font-size:12px;color:var(--g6);margin-bottom:6px}
+.sm-val{font-size:26px;font-weight:700}
+.sm-sub{font-size:11px;color:var(--g6);margin-top:2px}
+.h-row{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--g2)}
+.h-row:last-child{border-bottom:none}
+.h-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.h-dot.ok{background:var(--green)}.h-dot.warn{background:var(--orange)}.h-dot.err{background:var(--red)}
+.h-name{font-size:13px;font-weight:500;flex:1}
+.chip{font-size:11px;padding:2px 8px;border-radius:12px;font-weight:500}
+.tog{position:relative;width:36px;height:20px;display:inline-block;cursor:pointer}
+.tog input{opacity:0;width:0;height:0;position:absolute}
+.tog-sl{position:absolute;inset:0;background:var(--g4);border-radius:10px;transition:background .2s;cursor:pointer}
+.tog-sl:before{content:'';position:absolute;width:14px;height:14px;left:3px;top:3px;
+  background:#fff;border-radius:50%;transition:transform .2s}
+.tog input:checked+.tog-sl{background:var(--green)}
+.tog input:checked+.tog-sl:before{transform:translateX(16px)}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;
+  display:none;align-items:center;justify-content:center}
+.overlay.open{display:flex}
+.modal{background:var(--white);border-radius:2px;width:520px;max-height:85vh;
+  overflow-y:auto;box-shadow:var(--sh2);animation:slideUp .18s}
+.modal-hdr{display:flex;align-items:center;justify-content:space-between;
+  padding:15px 20px;border-bottom:1px solid var(--g3)}
+.modal-title{font-size:15px;font-weight:600}
+.modal-close{background:none;border:none;cursor:pointer;color:var(--g6);width:28px;height:28px;
+  display:flex;align-items:center;justify-content:center;border-radius:2px;font-size:18px;line-height:1}
+.modal-close:hover{background:var(--g2)}
+.modal-body{padding:18px 20px}
+.modal-foot{padding:12px 20px;border-top:1px solid var(--g3);display:flex;gap:8px}
+.form-grp{margin-bottom:13px}
+.form-lbl{display:block;font-size:13px;font-weight:500;margin-bottom:4px}
+.form-ctrl{width:100%;padding:7px 10px;border:1px solid var(--g4);border-radius:2px;
+  font-size:13px;font-family:var(--font);outline:none;transition:border-color .12s}
+.form-ctrl:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(0,120,212,.12)}
+.form-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.det-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+.det-item label{font-size:11px;font-weight:600;color:var(--g6);text-transform:uppercase;
+  letter-spacing:.5px;display:block;margin-bottom:2px}
+.det-item span{font-size:13px}
+#toast{position:fixed;bottom:26px;right:26px;background:var(--green);color:#fff;
+  padding:10px 16px;border-radius:2px;display:flex;align-items:center;gap:8px;
+  font-size:13px;font-weight:500;box-shadow:var(--sh2);z-index:1000;
+  opacity:0;transform:translateY(8px);transition:opacity .2s,transform .2s;pointer-events:none}
+#toast.show{opacity:1;transform:translateY(0)}
+@keyframes slideUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-thumb{background:var(--g4);border-radius:3px}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <button class="tb-btn" id="btn-toggle-sidebar">
+    <svg width="17" height="17" fill="none" stroke="#fff" stroke-width="1.8" viewBox="0 0 24 24">
+      <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+    </svg>
+  </button>
+  <button class="tb-btn">
+    <svg width="17" height="17" viewBox="0 0 18 18" fill="#fff">
+      <rect x="1" y="1" width="7" height="7" rx=".5"/><rect x="10" y="1" width="7" height="7" rx=".5"/>
+      <rect x="1" y="10" width="7" height="7" rx=".5"/><rect x="10" y="10" width="7" height="7" rx=".5"/>
+    </svg>
+  </button>
+  <span class="brand">Microsoft 365 admin center</span>
+  <div class="spacer"></div>
+  <div class="tb-search">
+    <svg width="13" height="13" fill="none" stroke="rgba(255,255,255,.75)" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+    <input type="text" placeholder="Search">
+  </div>
+  <div class="notif-wrap">
+    <button class="tb-btn">
+      <svg width="17" height="17" fill="none" stroke="#fff" stroke-width="1.8" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+    </button>
+    <span class="notif-dot"></span>
+  </div>
+  <button class="tb-btn">
+    <svg width="17" height="17" fill="none" stroke="#fff" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><circle cx="12" cy="17" r=".5" fill="#fff"/></svg>
+  </button>
+  <div class="avatar">AJ</div>
+</div>
+
+<div id="layout">
+  <nav id="sidebar">
+    <div class="nav-list" id="nav-list"></div>
+    <div class="sidebar-foot">
+      <p style="font-weight:600;color:var(--g7)">Contoso Ltd.</p>
+      <p>contoso.onmicrosoft.com</p>
+    </div>
+  </nav>
+
+  <main id="main">
+
+    <!-- DASHBOARD -->
+    <div id="sec-dashboard" class="section active">
+      <div class="sec-hdr">
+        <div><div class="sec-title">Home</div><div class="sec-sub">Contoso Ltd. · contoso.onmicrosoft.com</div></div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-ico-row">
+            <div class="stat-ico" style="background:#eff6fc"><svg width="18" height="18" fill="none" stroke="#0078d4" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+            <span class="stat-lbl">Active Users</span>
+          </div>
+          <div class="stat-val" style="color:#0078d4" id="d-active">4</div>
+          <div class="stat-sub" id="d-total">of 5 total</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-ico-row">
+            <div class="stat-ico" style="background:#f3f0ff"><svg width="18" height="18" fill="none" stroke="#8764b8" stroke-width="1.8" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+            <span class="stat-lbl">Groups</span>
+          </div>
+          <div class="stat-val" style="color:#8764b8" id="d-groups">4</div>
+          <div class="stat-sub">active groups</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-ico-row">
+            <div class="stat-ico" style="background:#e6f5f5"><svg width="18" height="18" fill="none" stroke="#038387" stroke-width="1.8" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/></svg></div>
+            <span class="stat-lbl">Licenses Used</span>
+          </div>
+          <div class="stat-val" style="color:#038387" id="d-licused">78</div>
+          <div class="stat-sub" id="d-lictotal">of 105 total</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-ico-row">
+            <div class="stat-ico" style="background:#fde7e9"><svg width="18" height="18" fill="none" stroke="#a80000" stroke-width="1.8" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+            <span class="stat-lbl">Security Policies</span>
+          </div>
+          <div class="stat-val" style="color:#a80000" id="d-sec">4</div>
+          <div class="stat-sub" id="d-secof">of 5 enabled</div>
+        </div>
+      </div>
+      <div class="dash-grid">
+        <div class="card"><div class="card-hdr">Recent Users</div><div id="d-users"></div></div>
+        <div class="card"><div class="card-hdr">License Overview</div><div class="card-body" id="d-lics"></div></div>
+      </div>
+    </div>
+
+    <!-- USERS -->
+    <div id="sec-users" class="section">
+      <div class="sec-hdr">
+        <div class="sec-title">Active users</div>
+        <div class="btn-row">
+          <button class="btn btn-primary" id="btn-add-user">
+            <svg width="13" height="13" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> Add a user
+          </button>
+          <button class="btn btn-secondary">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg> Filter
+          </button>
+          <button class="btn btn-secondary" id="btn-export">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Export
+          </button>
+        </div>
+      </div>
+      <div class="tbl-wrap">
+        <div class="tbl-search">
+          <svg width="14" height="14" fill="none" stroke="#a19f9d" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <input type="text" id="user-search" placeholder="Search users">
+        </div>
+        <table><thead><tr><th>Display name</th><th>Username</th><th>Licenses</th><th>Role</th><th>Status</th><th></th></tr></thead>
+        <tbody id="users-tbody"></tbody></table>
+        <div class="tbl-foot" id="users-foot"></div>
+      </div>
+    </div>
+
+    <!-- GROUPS -->
+    <div id="sec-groups" class="section">
+      <div class="sec-hdr">
+        <div class="sec-title">Groups</div>
+        <div class="btn-row">
+          <button class="btn btn-primary" id="btn-add-group">
+            <svg width="13" height="13" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> Add a group
+          </button>
+        </div>
+      </div>
+      <div class="tbl-wrap">
+        <div class="tbl-search">
+          <svg width="14" height="14" fill="none" stroke="#a19f9d" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <input type="text" id="group-search" placeholder="Search groups">
+        </div>
+        <table><thead><tr><th>Name</th><th>Email address</th><th>Type</th><th>Members</th><th>Privacy</th><th></th></tr></thead>
+        <tbody id="groups-tbody"></tbody></table>
+        <div class="tbl-foot" id="groups-foot"></div>
+      </div>
+    </div>
+
+    <!-- BILLING -->
+    <div id="sec-billing" class="section">
+      <div class="sec-hdr">
+        <div class="sec-title">Billing &amp; licenses</div>
+        <div class="btn-row">
+          <button class="btn btn-primary" id="btn-add-license">
+            <svg width="13" height="13" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> Add subscription
+          </button>
+        </div>
+      </div>
+      <div class="tbl-wrap">
+        <div class="tbl-hdr">Subscriptions</div>
+        <table><thead><tr><th>Product</th><th>Total</th><th>In use</th><th>Available</th><th>Cost</th><th>Status</th></tr></thead>
+        <tbody id="billing-tbody"></tbody></table>
+        <div class="tbl-foot" id="billing-foot"></div>
+      </div>
+    </div>
+
+    <!-- HEALTH -->
+    <div id="sec-health" class="section">
+      <div class="sec-hdr"><div class="sec-title">Service health</div></div>
+      <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="stat-card"><div class="stat-lbl" style="margin-bottom:6px">Overall status</div><div class="stat-val" style="color:var(--green);font-size:20px">&#10003; Operational</div></div>
+        <div class="stat-card"><div class="stat-lbl" style="margin-bottom:6px">Active advisories</div><div class="stat-val" style="color:var(--orange)">1</div></div>
+        <div class="stat-card"><div class="stat-lbl" style="margin-bottom:6px">Active incidents</div><div class="stat-val" style="color:var(--green)">0</div></div>
+      </div>
+      <div class="tbl-wrap"><div class="tbl-hdr">All services</div><div id="health-list"></div></div>
+    </div>
+
+    <!-- SECURITY -->
+    <div id="sec-security" class="section">
+      <div class="sec-hdr">
+        <div><div class="sec-title">Security</div><div class="sec-sub">Manage identity, device and threat protection settings.</div></div>
+      </div>
+      <div class="sec-grid">
+        <div class="sec-metric"><div class="sm-lbl">Secure Score</div><div class="sm-val" style="color:var(--green)">72<span style="font-size:14px;color:var(--g6)">/100</span></div><div class="sm-sub">Above industry avg</div></div>
+        <div class="sec-metric"><div class="sm-lbl">Active Policies</div><div class="sm-val" style="color:var(--blue)" id="sec-active">4</div><div class="sm-sub" id="sec-of">of 5 total</div></div>
+        <div class="sec-metric"><div class="sm-lbl">MFA Enabled</div><div class="sm-val" style="color:#038387">94%</div><div class="sm-sub">of licensed users</div></div>
+        <div class="sec-metric"><div class="sm-lbl">Risk Detections</div><div class="sm-val" style="color:var(--red)">2</div><div class="sm-sub">Last 7 days</div></div>
+      </div>
+      <div class="tbl-wrap">
+        <div class="tbl-hdr">Security policies</div>
+        <table><thead><tr><th>Policy name</th><th>Scope</th><th>Last modified</th><th>Status</th><th>Toggle</th></tr></thead>
+        <tbody id="security-tbody"></tbody></table>
+      </div>
+    </div>
+
+    <!-- COMPLIANCE -->
+    <div id="sec-compliance" class="section">
+      <div class="sec-hdr">
+        <div><div class="sec-title">Compliance (Microsoft Purview)</div><div class="sec-sub">Data protection, retention and audit settings.</div></div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-lbl" style="margin-bottom:6px">Compliance Score</div><div class="stat-val" style="color:var(--blue);font-size:24px">68%</div><div class="stat-sub">Needs improvement</div></div>
+        <div class="stat-card"><div class="stat-lbl" style="margin-bottom:6px">DLP Policies</div><div class="stat-val" style="color:var(--green)">3</div><div class="stat-sub">configured</div></div>
+        <div class="stat-card"><div class="stat-lbl" style="margin-bottom:6px">Retention Labels</div><div class="stat-val" style="color:#8764b8">6</div><div class="stat-sub">published</div></div>
+        <div class="stat-card"><div class="stat-lbl" style="margin-bottom:6px">eDiscovery Cases</div><div class="stat-val" style="color:var(--orange)">1</div><div class="stat-sub">open</div></div>
+      </div>
+      <div class="tbl-wrap" style="margin-bottom:16px">
+        <div class="tbl-hdr">Data Loss Prevention Policies</div>
+        <table><thead><tr><th>Policy name</th><th>Locations</th><th>Created</th><th>Status</th><th>Toggle</th></tr></thead>
+        <tbody id="dlp-tbody"></tbody></table>
+      </div>
+      <div class="tbl-wrap">
+        <div class="tbl-hdr">Audit Log Search</div>
+        <div style="padding:16px;display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+          <div><label class="form-lbl">Activity</label>
+            <select class="form-ctrl" style="width:200px"><option>All activities</option><option>File accessed</option><option>User signed in</option><option>Admin action</option><option>Mailbox access</option></select>
+          </div>
+          <div><label class="form-lbl">Start date</label><input type="date" class="form-ctrl" style="width:155px" value="2024-03-01"></div>
+          <div><label class="form-lbl">End date</label><input type="date" class="form-ctrl" style="width:155px" value="2024-03-12"></div>
+          <button class="btn btn-primary" id="btn-audit">Search</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MODAL: User Detail -->
+<div class="overlay" id="modal-user-detail">
+  <div class="modal">
+    <div class="modal-hdr"><span class="modal-title" id="udm-name">User</span><button class="modal-close" data-close="modal-user-detail">&#10005;</button></div>
+    <div class="modal-body">
+      <div class="det-grid" id="udm-grid"></div>
+      <div><div style="font-size:11px;font-weight:600;color:var(--g6);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px">Assigned licenses</div><div id="udm-lics"></div></div>
+    </div>
+    <div class="modal-foot" id="udm-foot"></div>
+  </div>
+</div>
+
+<!-- MODAL: Add User -->
+<div class="overlay" id="modal-add-user">
+  <div class="modal">
+    <div class="modal-hdr"><span class="modal-title">Add a user</span><button class="modal-close" data-close="modal-add-user">&#10005;</button></div>
+    <div class="modal-body">
+      <div class="form-2">
+        <div class="form-grp"><label class="form-lbl">First name *</label><input class="form-ctrl" id="au-fname" placeholder="Jane"></div>
+        <div class="form-grp"><label class="form-lbl">Last name *</label><input class="form-ctrl" id="au-lname" placeholder="Smith"></div>
+      </div>
+      <div class="form-grp"><label class="form-lbl">Username (email) *</label><input class="form-ctrl" id="au-email" placeholder="jane.smith@contoso.com"></div>
+      <div class="form-2">
+        <div class="form-grp"><label class="form-lbl">Department</label><input class="form-ctrl" id="au-dept" placeholder="e.g. IT"></div>
+        <div class="form-grp"><label class="form-lbl">Role</label>
+          <select class="form-ctrl" id="au-role"><option>User</option><option>Global Administrator</option><option>Exchange Administrator</option><option>SharePoint Administrator</option><option>Teams Administrator</option><option>Billing Administrator</option></select>
+        </div>
+      </div>
+      <div class="form-grp"><label class="form-lbl">Assign license</label>
+        <select class="form-ctrl" id="au-license"><option value="">— None —</option><option>Microsoft 365 E3</option><option>Microsoft 365 Business Premium</option><option>Microsoft 365 Business Standard</option><option>Microsoft 365 Business Basic</option><option>Power BI Pro</option></select>
+      </div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-primary" id="submit-add-user">Add user</button><button class="btn btn-secondary" data-close="modal-add-user">Cancel</button></div>
+  </div>
+</div>
+
+<!-- MODAL: Add Group -->
+<div class="overlay" id="modal-add-group">
+  <div class="modal">
+    <div class="modal-hdr"><span class="modal-title">Add a group</span><button class="modal-close" data-close="modal-add-group">&#10005;</button></div>
+    <div class="modal-body">
+      <div class="form-grp"><label class="form-lbl">Group name *</label><input class="form-ctrl" id="ag-name" placeholder="e.g. Sales Team"></div>
+      <div class="form-grp"><label class="form-lbl">Group email address</label><input class="form-ctrl" id="ag-email" placeholder="sales@contoso.com"></div>
+      <div class="form-2">
+        <div class="form-grp"><label class="form-lbl">Group type</label><select class="form-ctrl" id="ag-type"><option>Microsoft 365</option><option>Security</option><option>Distribution</option><option>Mail-enabled security</option></select></div>
+        <div class="form-grp"><label class="form-lbl">Privacy</label><select class="form-ctrl" id="ag-privacy"><option>Public</option><option>Private</option></select></div>
+      </div>
+      <div class="form-grp"><label class="form-lbl">Owner</label><input class="form-ctrl" id="ag-owner" placeholder="Owner name"></div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-primary" id="submit-add-group">Create group</button><button class="btn btn-secondary" data-close="modal-add-group">Cancel</button></div>
+  </div>
+</div>
+
+<!-- MODAL: Add License -->
+<div class="overlay" id="modal-add-license">
+  <div class="modal">
+    <div class="modal-hdr"><span class="modal-title">Add subscription</span><button class="modal-close" data-close="modal-add-license">&#10005;</button></div>
+    <div class="modal-body">
+      <div class="form-grp"><label class="form-lbl">Product name *</label><input class="form-ctrl" id="al-name" placeholder="e.g. Power BI Pro"></div>
+      <div class="form-2">
+        <div class="form-grp"><label class="form-lbl">Number of licenses</label><input type="number" class="form-ctrl" id="al-total" value="10" min="1"></div>
+        <div class="form-grp"><label class="form-lbl">Cost per user/month</label><input class="form-ctrl" id="al-cost" placeholder="$10.00/user/mo"></div>
+      </div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-primary" id="submit-add-license">Add subscription</button><button class="btn btn-secondary" data-close="modal-add-license">Cancel</button></div>
+  </div>
+</div>
+
+<div id="toast">
+  <svg width="14" height="14" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+  <span id="toast-msg"></span>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+var users = [
+  {id:1,name:"Alex Johnson",  email:"alex.johnson@contoso.com",  role:"Global Administrator",   status:"Active",  licenses:["Microsoft 365 E3","Power BI Pro"],      department:"IT",        created:"2023-01-15"},
+  {id:2,name:"Maria Garcia",  email:"maria.garcia@contoso.com",  role:"User",                   status:"Active",  licenses:["Microsoft 365 Business Basic"],         department:"Marketing", created:"2023-03-20"},
+  {id:3,name:"James Wilson",  email:"james.wilson@contoso.com",  role:"User",                   status:"Blocked", licenses:["Microsoft 365 E3"],                     department:"Sales",     created:"2022-11-08"},
+  {id:4,name:"Sarah Lee",     email:"sarah.lee@contoso.com",     role:"Exchange Administrator", status:"Active",  licenses:["Microsoft 365 E3","Power BI Pro"],      department:"Finance",   created:"2023-06-01"},
+  {id:5,name:"Tom Brown",     email:"tom.brown@contoso.com",     role:"User",                   status:"Active",  licenses:["Microsoft 365 Business Standard"],      department:"HR",        created:"2024-01-10"}
+];
+var groups = [
+  {id:1,name:"Marketing Team",    email:"marketing@contoso.com",   type:"Microsoft 365",members:12,owner:"Maria Garcia", privacy:"Public"},
+  {id:2,name:"IT Admins",         email:"itadmins@contoso.com",    type:"Security",     members:4, owner:"Alex Johnson", privacy:"Private"},
+  {id:3,name:"All Employees",     email:"allemployees@contoso.com",type:"Distribution", members:87,owner:"Alex Johnson", privacy:"Public"},
+  {id:4,name:"Finance Department",email:"finance@contoso.com",     type:"Microsoft 365",members:9, owner:"Sarah Lee",   privacy:"Private"}
+];
+var licenses = [
+  {id:1,name:"Microsoft 365 E3",               total:25,used:18,cost:"$36.00/user/mo"},
+  {id:2,name:"Microsoft 365 Business Basic",   total:50,used:42,cost:"$6.00/user/mo"},
+  {id:3,name:"Microsoft 365 Business Standard",total:20,used:15,cost:"$12.50/user/mo"},
+  {id:4,name:"Power BI Pro",                   total:10,used:3, cost:"$10.00/user/mo"}
+];
+var policies = [
+  {id:1,name:"Multi-Factor Authentication",                    scope:"All Users",     modified:"2024-02-10",on:true},
+  {id:2,name:"Self-service password reset",                    scope:"All Users",     modified:"2024-01-15",on:true},
+  {id:3,name:"Legacy Authentication Block",                    scope:"All Users",     modified:"2023-12-01",on:true},
+  {id:4,name:"Conditional Access - Require MFA for Admins",   scope:"Admins",        modified:"2024-03-05",on:true},
+  {id:5,name:"Guest User Access",                              scope:"External Users",modified:"2023-11-20",on:false}
+];
+var dlpPolicies = [
+  {id:1,name:"Credit Card Number Protection", locations:"Exchange, SharePoint, OneDrive",created:"2023-08-10",on:true},
+  {id:2,name:"South Africa PII Protection",   locations:"Exchange, Teams",              created:"2023-10-01",on:true},
+  {id:3,name:"Financial Data - Restricted",   locations:"SharePoint, OneDrive",         created:"2024-01-05",on:false}
+];
+var healthServices = [
+  {name:"Exchange Online",            status:"Operational",                         cls:"ok"},
+  {name:"Microsoft Teams",            status:"Operational",                         cls:"ok"},
+  {name:"SharePoint Online",          status:"Operational",                         cls:"ok"},
+  {name:"OneDrive for Business",      status:"Advisory: Slow sync in some regions", cls:"warn"},
+  {name:"Microsoft 365 Admin Center", status:"Operational",                         cls:"ok"},
+  {name:"Azure Active Directory",     status:"Operational",                         cls:"ok"},
+  {name:"Microsoft Intune",           status:"Operational",                         cls:"ok"},
+  {name:"Power BI",                   status:"Operational",                         cls:"ok"},
+  {name:"Microsoft Purview",          status:"Operational",                         cls:"ok"}
+];
+var typeColor = {"Microsoft 365":"#0078d4","Security":"#a80000","Distribution":"#107c10","Mail-enabled security":"#d83b01"};
+var typeBg    = {"Microsoft 365":"#eff6fc","Security":"#fde7e9","Distribution":"#dff6dd","Mail-enabled security":"#fff4ce"};
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function ini(n){ return n.split(" ").map(function(w){return w[0];}).join(""); }
+var _tt;
+function toast(msg){
+  document.getElementById("toast-msg").textContent = msg;
+  var el = document.getElementById("toast");
+  el.classList.add("show");
+  clearTimeout(_tt);
+  _tt = setTimeout(function(){ el.classList.remove("show"); }, 2600);
+}
+function openM(id){ document.getElementById(id).classList.add("open"); }
+function closeM(id){ document.getElementById(id).classList.remove("open"); }
+function val(id){ return document.getElementById(id).value.trim(); }
+function clr(id){ document.getElementById(id).value = ""; }
+
+// ── SIDEBAR ───────────────────────────────────────────────────────────────────
+var navDefs = [
+  {id:"dashboard", label:"Home",
+   svg:'<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>'},
+  {id:"users",     label:"Users", badge:true,
+   svg:'<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>'},
+  {id:"groups",    label:"Groups",
+   svg:'<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>'},
+  {id:"billing",   label:"Billing",
+   svg:'<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/></svg>'},
+  {id:"health",    label:"Health",
+   svg:'<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>'},
+  {id:"security",  label:"Security",
+   svg:'<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>'},
+  {id:"compliance",label:"Compliance",
+   svg:'<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>'}
+];
+
+(function buildNav(){
+  var list = document.getElementById("nav-list");
+  list.innerHTML = navDefs.map(function(n){
+    var badge = n.badge ? '<span class="nav-badge" id="badge-'+n.id+'">'+users.length+'</span>' : "";
+    return '<button class="nav-btn'+(n.id==="dashboard"?" active":"")+'" data-sec="'+n.id+'">'
+      +'<span class="nav-ico">'+n.svg+'</span>'
+      +'<span class="nav-lbl">'+n.label+'</span>'+badge+'</button>';
+  }).join("");
+
+  list.querySelectorAll(".nav-btn").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      list.querySelectorAll(".nav-btn").forEach(function(b){ b.classList.remove("active"); });
+      btn.classList.add("active");
+      showSec(btn.dataset.sec);
+    });
+  });
+})();
+
+// ── NAVIGATION ────────────────────────────────────────────────────────────────
+function showSec(id){
+  document.querySelectorAll(".section").forEach(function(s){ s.classList.remove("active"); });
+  var el = document.getElementById("sec-"+id);
+  if(el) el.classList.add("active");
+  if(id==="dashboard") rDash();
+  if(id==="users")     rUsers("");
+  if(id==="groups")    rGroups("");
+  if(id==="billing")   rBilling();
+  if(id==="health")    rHealth();
+  if(id==="security")  rSecurity();
+  if(id==="compliance")rCompliance();
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────────────
+function rDash(){
+  var active = users.filter(function(u){return u.status==="Active";}).length;
+  document.getElementById("d-active").textContent = active;
+  document.getElementById("d-total").textContent  = "of "+users.length+" total";
+  document.getElementById("d-groups").textContent = groups.length;
+  var used = licenses.reduce(function(s,l){return s+l.used;},0);
+  var tot  = licenses.reduce(function(s,l){return s+l.total;},0);
+  document.getElementById("d-licused").textContent  = used;
+  document.getElementById("d-lictotal").textContent = "of "+tot+" total";
+  var secOn = policies.filter(function(p){return p.on;}).length;
+  document.getElementById("d-sec").textContent  = secOn;
+  document.getElementById("d-secof").textContent = "of "+policies.length+" enabled";
+
+  document.getElementById("d-users").innerHTML = users.slice(0,4).map(function(u){
+    return '<div class="dash-ur">'
+      +'<div class="u-avatar">'+ini(u.name)+'</div>'
+      +'<div style="flex:1"><div class="u-name">'+u.name+'</div><div class="u-email">'+u.email+'</div></div>'
+      +'<span class="badge '+(u.status==="Active"?"b-ok":"b-err")+'">'+u.status+'</span></div>';
+  }).join("");
+
+  document.getElementById("d-lics").innerHTML = licenses.map(function(l){
+    var pct = Math.round(l.used/l.total*100);
+    var col = pct>85?"var(--red)":pct>65?"var(--orange)":"var(--blue)";
+    return '<div style="margin-bottom:14px">'
+      +'<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">'
+      +'<span style="font-weight:500">'+l.name+'</span><span style="color:var(--g6)">'+l.used+"/"+l.total+'</span></div>'
+      +'<div class="prog"><div class="prog-fill" style="width:'+pct+'%;background:'+col+'"></div></div></div>';
+  }).join("");
+}
+
+// ── USERS ─────────────────────────────────────────────────────────────────────
+function rUsers(q){
+  q = (q||"").toLowerCase();
+  var list = users.filter(function(u){
+    return u.name.toLowerCase().indexOf(q)>=0 || u.email.toLowerCase().indexOf(q)>=0;
+  });
+  var trashIcon = '<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>';
+  document.getElementById("users-tbody").innerHTML = list.length ? list.map(function(u){
+    var lics = u.licenses||[];
+    var ls = lics.slice(0,1).join(", ")+(lics.length>1?" +"+(lics.length-1):"");
+    return '<tr class="urow" data-uid="'+u.id+'">'
+      +'<td><div class="u-cell"><div class="u-avatar">'+ini(u.name)+'</div><span class="u-name">'+u.name+'</span></div></td>'
+      +'<td style="color:var(--blue)">'+u.email+'</td>'
+      +'<td style="color:var(--g6);font-size:12px">'+ls+'</td>'
+      +'<td>'+u.role+'</td>'
+      +'<td><span class="badge '+(u.status==="Active"?"b-ok":"b-err")+'">'+u.status+'</span></td>'
+      +'<td style="white-space:nowrap">'
+      +'<button class="btn btn-secondary btn-sm ubtn-block" data-uid="'+u.id+'">'+(u.status==="Active"?"Block":"Unblock")+'</button> '
+      +'<button class="btn btn-secondary btn-icon btn-sm ubtn-del" data-uid="'+u.id+'" style="border-color:var(--red-lt);color:var(--red)">'+trashIcon+'</button>'
+      +'</td></tr>';
+  }).join("") : '<tr><td colspan="6" style="text-align:center;color:var(--g6);padding:20px">No users found</td></tr>';
+  document.getElementById("users-foot").textContent = list.length+" user(s)";
+  var b = document.getElementById("badge-users"); if(b) b.textContent = users.length;
+}
+
+function openUserDetail(id){
+  var u = users.find(function(x){return x.id===id;});
+  if(!u) return;
+  document.getElementById("udm-name").textContent = u.name;
+  document.getElementById("udm-grid").innerHTML = [
+    ["Display name",u.name],["Email",u.email],
+    ["Department",u.department||"—"],["Role",u.role],
+    ["Status",u.status],["Created",u.created]
+  ].map(function(r){
+    return '<div class="det-item"><label>'+r[0]+'</label><span>'+r[1]+'</span></div>';
+  }).join("");
+  var lics = u.licenses||[];
+  document.getElementById("udm-lics").innerHTML = lics.length
+    ? lics.map(function(l){return '<span class="badge b-info" style="margin-right:5px">'+l+'</span>';}).join("")
+    : '<span style="color:var(--g6)">None assigned</span>';
+  document.getElementById("udm-foot").innerHTML =
+    '<button class="btn '+(u.status==="Active"?"btn-secondary":"btn-primary")+' udm-block" data-uid="'+u.id+'">'+(u.status==="Active"?"Block sign-in":"Unblock sign-in")+'</button>'
+    +'<button class="btn btn-danger udm-del" data-uid="'+u.id+'">Delete user</button>'
+    +'<button class="btn btn-secondary udm-reset" data-email="'+u.email+'">Reset password</button>';
+  openM("modal-user-detail");
+}
+
+function doBlock(id){
+  var u = users.find(function(x){return x.id===id;});
+  if(!u) return;
+  u.status = u.status==="Active"?"Blocked":"Active";
+  rUsers(document.getElementById("user-search").value);
+  rDash();
+  toast(u.name+" "+(u.status==="Active"?"unblocked":"blocked"));
+}
+function doDelUser(id){
+  var u = users.find(function(x){return x.id===id;});
+  if(!u) return;
+  users = users.filter(function(x){return x.id!==id;});
+  rUsers(document.getElementById("user-search").value);
+  rDash();
+  toast(u.name+" deleted");
+}
+
+// ── GROUPS ────────────────────────────────────────────────────────────────────
+function rGroups(q){
+  q = (q||"").toLowerCase();
+  var list = groups.filter(function(g){ return g.name.toLowerCase().indexOf(q)>=0; });
+  var trashIcon = '<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>';
+  document.getElementById("groups-tbody").innerHTML = list.length ? list.map(function(g){
+    var col = typeColor[g.type]||"#0078d4", bg = typeBg[g.type]||"#eff6fc";
+    return '<tr>'
+      +'<td style="font-weight:500">'+g.name+'</td>'
+      +'<td style="color:var(--blue)">'+g.email+'</td>'
+      +'<td><span class="chip" style="background:'+bg+';color:'+col+'">'+g.type+'</span></td>'
+      +'<td>'+g.members+'</td>'
+      +'<td>'+g.privacy+'</td>'
+      +'<td><button class="btn btn-secondary btn-icon btn-sm gbtn-del" data-gid="'+g.id+'" style="border-color:var(--red-lt);color:var(--red)">'+trashIcon+'</button></td>'
+      +'</tr>';
+  }).join("") : '<tr><td colspan="6" style="text-align:center;color:var(--g6);padding:20px">No groups found</td></tr>';
+  document.getElementById("groups-foot").textContent = list.length+" group(s)";
+}
+
+// ── BILLING ───────────────────────────────────────────────────────────────────
+function rBilling(){
+  document.getElementById("billing-tbody").innerHTML = licenses.map(function(l){
+    var av = l.total-l.used, pct = Math.round(l.used/l.total*100);
+    var col = pct>85?"var(--red)":pct>65?"var(--orange)":"var(--blue)";
+    return '<tr>'
+      +'<td><div style="font-weight:500">'+l.name+'</div>'
+      +'<div class="prog"><div class="prog-fill" style="width:'+pct+'%;background:'+col+'"></div></div></td>'
+      +'<td>'+l.total+'</td><td>'+l.used+'</td>'
+      +'<td><span style="font-weight:700;color:'+(av<=2?"var(--red)":"var(--green)")+'">'+av+'</span></td>'
+      +'<td style="color:var(--g6)">'+l.cost+'</td>'
+      +'<td><span class="badge b-ok">Active</span></td></tr>';
+  }).join("");
+  document.getElementById("billing-foot").textContent = licenses.length+" subscription(s)";
+}
+
+// ── HEALTH ────────────────────────────────────────────────────────────────────
+function rHealth(){
+  document.getElementById("health-list").innerHTML = healthServices.map(function(s){
+    var col = s.cls==="ok"?"var(--green)":s.cls==="warn"?"var(--orange)":"var(--red)";
+    return '<div class="h-row"><div class="h-dot '+s.cls+'"></div>'
+      +'<span class="h-name">'+s.name+'</span>'
+      +'<span style="font-size:12px;color:'+col+'">'+s.status+'</span></div>';
+  }).join("");
+}
+
+// ── SECURITY ──────────────────────────────────────────────────────────────────
+function rSecurity(){
+  var on = policies.filter(function(p){return p.on;}).length;
+  document.getElementById("sec-active").textContent = on;
+  document.getElementById("sec-of").textContent = "of "+policies.length+" total";
+  document.getElementById("security-tbody").innerHTML = policies.map(function(p){
+    return '<tr>'
+      +'<td style="font-weight:500">'+p.name+'</td>'
+      +'<td style="color:var(--g6)">'+p.scope+'</td>'
+      +'<td style="color:var(--g6)">'+p.modified+'</td>'
+      +'<td><span class="badge '+(p.on?"b-ok":"b-neutral")+'">'+(p.on?"Enabled":"Disabled")+'</span></td>'
+      +'<td><label class="tog"><input type="checkbox" class="pol-tog" data-pid="'+p.id+'"'+(p.on?" checked":"")+"><span class=\"tog-sl\"></span></label></td>"
+      +'</tr>';
+  }).join("");
+}
+
+// ── COMPLIANCE ────────────────────────────────────────────────────────────────
+function rCompliance(){
+  document.getElementById("dlp-tbody").innerHTML = dlpPolicies.map(function(p){
+    return '<tr>'
+      +'<td style="font-weight:500">'+p.name+'</td>'
+      +'<td style="color:var(--g6);font-size:12px">'+p.locations+'</td>'
+      +'<td style="color:var(--g6)">'+p.created+'</td>'
+      +'<td><span class="badge '+(p.on?"b-ok":"b-neutral")+'">'+(p.on?"Active":"Disabled")+'</span></td>'
+      +'<td><label class="tog"><input type="checkbox" class="dlp-tog" data-pid="'+p.id+'"'+(p.on?" checked":"")+"><span class=\"tog-sl\"></span></label></td>"
+      +'</tr>';
+  }).join("");
+}
+
+// ── WIRE EVENTS ───────────────────────────────────────────────────────────────
+
+// Sidebar
+document.getElementById("btn-toggle-sidebar").addEventListener("click", function(){
+  document.getElementById("sidebar").classList.toggle("collapsed");
+});
+
+// Close modals: data-close attribute or overlay click
+document.addEventListener("click", function(e){
+  var cb = e.target.closest("[data-close]");
+  if(cb){ closeM(cb.dataset.close); }
+});
+document.querySelectorAll(".overlay").forEach(function(ov){
+  ov.addEventListener("click", function(e){ if(e.target===ov) ov.classList.remove("open"); });
+});
+
+// -- USERS --
+document.getElementById("btn-add-user").addEventListener("click", function(){ openM("modal-add-user"); });
+document.getElementById("user-search").addEventListener("input", function(){ rUsers(this.value); });
+document.getElementById("btn-export").addEventListener("click", function(){ toast("User list exported"); });
+
+document.getElementById("users-tbody").addEventListener("click", function(e){
+  var bb = e.target.closest(".ubtn-block");
+  var bd = e.target.closest(".ubtn-del");
+  var row = e.target.closest(".urow");
+  if(bb){ doBlock(+bb.dataset.uid); }
+  else if(bd){ doDelUser(+bd.dataset.uid); }
+  else if(row){ openUserDetail(+row.dataset.uid); }
+});
+
+document.getElementById("udm-foot").addEventListener("click", function(e){
+  var btn = e.target.closest("button");
+  if(!btn) return;
+  if(btn.classList.contains("udm-block")) { doBlock(+btn.dataset.uid); closeM("modal-user-detail"); }
+  if(btn.classList.contains("udm-del"))   { doDelUser(+btn.dataset.uid); closeM("modal-user-detail"); }
+  if(btn.classList.contains("udm-reset")) { toast("Password reset email sent to "+btn.dataset.email); closeM("modal-user-detail"); }
+});
+
+document.getElementById("submit-add-user").addEventListener("click", function(){
+  var fn=val("au-fname"), ln=val("au-lname"), em=val("au-email");
+  if(!fn||!ln||!em){ toast("Please fill in required fields"); return; }
+  var lic = document.getElementById("au-license").value;
+  users.push({id:Date.now(),name:fn+" "+ln,email:em,
+    role:document.getElementById("au-role").value,
+    department:val("au-dept"),status:"Active",
+    licenses:lic?[lic]:[],created:new Date().toISOString().slice(0,10)});
+  closeM("modal-add-user");
+  ["au-fname","au-lname","au-email","au-dept"].forEach(clr);
+  rUsers(document.getElementById("user-search").value);
+  rDash();
+  toast(fn+" "+ln+" added successfully");
+});
+
+// -- GROUPS --
+document.getElementById("btn-add-group").addEventListener("click", function(){ openM("modal-add-group"); });
+document.getElementById("group-search").addEventListener("input", function(){ rGroups(this.value); });
+
+document.getElementById("groups-tbody").addEventListener("click", function(e){
+  var bd = e.target.closest(".gbtn-del");
+  if(bd){
+    var id = +bd.dataset.gid;
+    var g = groups.find(function(x){return x.id===id;});
+    groups = groups.filter(function(x){return x.id!==id;});
+    rGroups(document.getElementById("group-search").value);
+    rDash();
+    toast('Group "'+g.name+'" deleted');
+  }
+});
+
+document.getElementById("submit-add-group").addEventListener("click", function(){
+  var name = val("ag-name");
+  if(!name){ toast("Group name is required"); return; }
+  groups.push({id:Date.now(),name:name,email:val("ag-email"),
+    type:document.getElementById("ag-type").value,
+    privacy:document.getElementById("ag-privacy").value,
+    owner:val("ag-owner"),members:0});
+  closeM("modal-add-group");
+  ["ag-name","ag-email","ag-owner"].forEach(clr);
+  rGroups(""); rDash();
+  toast('Group "'+name+'" created');
+});
+
+// -- BILLING --
+document.getElementById("btn-add-license").addEventListener("click", function(){ openM("modal-add-license"); });
+
+document.getElementById("submit-add-license").addEventListener("click", function(){
+  var name = val("al-name");
+  if(!name){ toast("Product name required"); return; }
+  var total = parseInt(document.getElementById("al-total").value)||10;
+  licenses.push({id:Date.now(),name:name,total:total,used:0,cost:val("al-cost")||"—"});
+  closeM("modal-add-license");
+  clr("al-name"); clr("al-cost");
+  rBilling();
+  toast('Subscription "'+name+'" added');
+});
+
+// -- SECURITY --
+document.getElementById("security-tbody").addEventListener("change", function(e){
+  if(e.target.classList.contains("pol-tog")){
+    var p = policies.find(function(x){return x.id===+e.target.dataset.pid;});
+    if(p){ p.on=e.target.checked; p.modified=new Date().toISOString().slice(0,10); rSecurity(); toast('Policy "'+p.name+'" '+(p.on?"enabled":"disabled")); }
+  }
+});
+
+// -- COMPLIANCE --
+document.getElementById("dlp-tbody").addEventListener("change", function(e){
+  if(e.target.classList.contains("dlp-tog")){
+    var p = dlpPolicies.find(function(x){return x.id===+e.target.dataset.pid;});
+    if(p){ p.on=e.target.checked; rCompliance(); toast('DLP Policy "'+p.name+'" '+(p.on?"activated":"deactivated")); }
+  }
+});
+
+document.getElementById("btn-audit").addEventListener("click", function(){ toast("Audit log search initiated"); });
+
+// ── BOOT ──────────────────────────────────────────────────────────────────────
+rDash();
+</script>
+</body>
+</html>
