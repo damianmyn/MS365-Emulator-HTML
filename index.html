@@ -13,7 +13,7 @@
   --orange:#d83b01;--orange-lt:#fff4ce;
   --g1:#faf9f8;--g2:#f3f2f1;--g3:#edebe9;--g4:#d2d0ce;
   --g6:#a19f9d;--g7:#605e5c;--g8:#3b3a39;--g9:#201f1e;
-  --white:#fff;
+  --charc:#fff;
   --font:'Segoe UI',system-ui,sans-serif;
   --sh:0 1px 4px rgba(0,0,0,.1);
   --sh2:0 4px 16px rgba(0,0,0,.18);
@@ -36,7 +36,7 @@ body{font-family:var(--font);background:var(--g2);color:var(--g9);font-size:14px
 .notif-dot{position:absolute;top:5px;right:5px;width:7px;height:7px;background:#ff3333;
   border-radius:50%;border:1.5px solid var(--blue)}
 #layout{display:flex;height:calc(100vh - 48px);margin-top:48px}
-#sidebar{width:220px;background:var(--white);border-right:1px solid var(--g3);
+#sidebar{width:220px;background:var(--charc);border-right:1px solid var(--g3);
   display:flex;flex-direction:column;flex-shrink:0;transition:width .2s;overflow:hidden}
 #sidebar.collapsed{width:48px}
 .nav-list{flex:1;padding:6px 0;overflow-y:auto}
@@ -63,20 +63,20 @@ body{font-family:var(--font);background:var(--g2);color:var(--g9);font-size:14px
   font-size:13px;font-weight:500;cursor:pointer;border:none;font-family:var(--font);transition:background .12s}
 .btn-primary{background:var(--blue);color:#fff}
 .btn-primary:hover{background:var(--blue-dk)}
-.btn-secondary{background:var(--white);color:var(--g8);border:1px solid var(--g4)}
+.btn-secondary{background:var(--charc);color:var(--g8);border:1px solid var(--g4)}
 .btn-secondary:hover{background:var(--g2)}
 .btn-danger{background:var(--red);color:#fff}
 .btn-danger:hover{background:#7a0000}
 .btn-sm{padding:4px 10px;font-size:12px}
 .btn-icon{padding:4px 7px}
 .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
-.stat-card{background:var(--white);border:1px solid var(--g3);border-radius:2px;padding:18px 20px;box-shadow:var(--sh)}
+.stat-card{background:var(--charc);border:1px solid var(--g3);border-radius:2px;padding:18px 20px;box-shadow:var(--sh)}
 .stat-ico-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
 .stat-ico{width:34px;height:34px;border-radius:2px;display:flex;align-items:center;justify-content:center}
 .stat-lbl{font-size:12px;color:var(--g6);font-weight:500}
 .stat-val{font-size:30px;font-weight:700;line-height:1}
 .stat-sub{font-size:11px;color:var(--g6);margin-top:2px}
-.tbl-wrap{background:var(--white);border:1px solid var(--g3);border-radius:2px;overflow:hidden;box-shadow:var(--sh)}
+.tbl-wrap{background:var(--charc);border:1px solid var(--g3);border-radius:2px;overflow:hidden;box-shadow:var(--sh)}
 .tbl-search{padding:9px 14px;border-bottom:1px solid var(--g3);display:flex;align-items:center;gap:8px}
 .tbl-search input{border:none;outline:none;font-size:13px;color:var(--g9);flex:1;font-family:var(--font)}
 table{width:100%;border-collapse:collapse}
@@ -101,13 +101,13 @@ td{padding:9px 16px;font-size:13px;vertical-align:middle}
 .prog{height:5px;background:var(--g3);border-radius:3px;overflow:hidden;margin-top:5px;width:130px}
 .prog-fill{height:100%;border-radius:3px}
 .dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.card{background:var(--white);border:1px solid var(--g3);border-radius:2px;box-shadow:var(--sh)}
+.card{background:var(--charc);border:1px solid var(--g3);border-radius:2px;box-shadow:var(--sh)}
 .card-hdr{padding:12px 16px;border-bottom:1px solid var(--g3);background:var(--g1);font-size:13px;font-weight:600}
 .card-body{padding:16px}
 .dash-ur{display:flex;align-items:center;gap:10px;padding:9px 16px;border-bottom:1px solid var(--g2)}
 .dash-ur:last-child{border-bottom:none}
 .sec-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
-.sec-metric{background:var(--white);border:1px solid var(--g3);border-radius:2px;padding:16px 18px}
+.sec-metric{background:var(--charc);border:1px solid var(--g3);border-radius:2px;padding:16px 18px}
 .sm-lbl{font-size:12px;color:var(--g6);margin-bottom:6px}
 .sm-val{font-size:26px;font-weight:700}
 .sm-sub{font-size:11px;color:var(--g6);margin-top:2px}
@@ -127,7 +127,7 @@ td{padding:9px 16px;font-size:13px;vertical-align:middle}
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;
   display:none;align-items:center;justify-content:center}
 .overlay.open{display:flex}
-.modal{background:var(--white);border-radius:2px;width:520px;max-height:85vh;
+.modal{background:var(--charc);border-radius:2px;width:520px;max-height:85vh;
   overflow-y:auto;box-shadow:var(--sh2);animation:slideUp .18s}
 .modal-hdr{display:flex;align-items:center;justify-content:space-between;
   padding:15px 20px;border-bottom:1px solid var(--g3)}
@@ -193,7 +193,7 @@ td{padding:9px 16px;font-size:13px;vertical-align:middle}
   <nav id="sidebar">
     <div class="nav-list" id="nav-list"></div>
     <div class="sidebar-foot">
-      <p style="font-weight:600;color:var(--g7)">DamianMynhardt Ltd.</p>
+      <p style="font-weight:600;color:var(--g7)">Nimada Ltd.</p>
       <p>damianmyn.onmicrosoft.com</p>
     </div>
   </nav>
@@ -203,7 +203,7 @@ td{padding:9px 16px;font-size:13px;vertical-align:middle}
     <!-- DASHBOARD -->
     <div id="sec-dashboard" class="section active">
       <div class="sec-hdr">
-        <div><div class="sec-title">Home</div><div class="sec-sub">DamianMynhardt Ltd. · damianmyn.onmicrosoft.com</div></div>
+        <div><div class="sec-title">Home</div><div class="sec-sub">Nimada Ltd. · damianmyn.onmicrosoft.com</div></div>
       </div>
       <div class="stats-grid">
         <div class="stat-card">
@@ -448,17 +448,17 @@ td{padding:9px 16px;font-size:13px;vertical-align:middle}
 <script>
 // ── DATA ──────────────────────────────────────────────────────────────────────
 var users = [
-  {id:1,name:"Alex Johnson",  email:"alex.johnson@damianmyn.com",  role:"Global Administrator",   status:"Active",  licenses:["Microsoft 365 E3","Power BI Pro"],      department:"IT",        created:"2023-01-15"},
-  {id:2,name:"Maria Garcia",  email:"maria.garcia@damianmyn.com",  role:"User",                   status:"Active",  licenses:["Microsoft 365 Business Basic"],         department:"Marketing", created:"2023-03-20"},
-  {id:3,name:"James Wilson",  email:"james.wilson@damianmyn.com",  role:"User",                   status:"Blocked", licenses:["Microsoft 365 E3"],                     department:"Sales",     created:"2022-11-08"},
-  {id:4,name:"Sarah Lee",     email:"sarah.lee@damianmyn.com",     role:"Exchange Administrator", status:"Active",  licenses:["Microsoft 365 E3","Power BI Pro"],      department:"Finance",   created:"2023-06-01"},
-  {id:5,name:"Tom Brown",     email:"tom.brown@damianmyn.com",     role:"User",                   status:"Active",  licenses:["Microsoft 365 Business Standard"],      department:"HR",        created:"2024-01-10"}
+  {id:1,name:"Dave Mustaine",  email:"dave.mustaine@damianmyn.com",  role:"Global Administrator",   status:"Active",  licenses:["Microsoft 365 E3","Power BI Pro"],      department:"IT",        created:"2023-01-15"},
+  {id:2,name:"Johnny Cash",  email:"john.cash@damianmyn.com",  role:"User",                   status:"Active",  licenses:["Microsoft 365 Business Basic"],         department:"Marketing", created:"2023-03-20"},
+  {id:3,name:"Mark Knopfner",  email:"mark.knopfner@damianmyn.com",  role:"User",                   status:"Blocked", licenses:["Microsoft 365 E3"],                     department:"Sales",     created:"2022-11-08"},
+  {id:4,name:"Amy Lee",     email:"amy.lee@damianmyn.com",     role:"Exchange Administrator", status:"Active",  licenses:["Microsoft 365 E3","Power BI Pro"],      department:"Finance",   created:"2023-06-01"},
+  {id:5,name:"Jim Croce",     email:"jim.croce@damianmyn.com",     role:"User",                   status:"Active",  licenses:["Microsoft 365 Business Standard"],      department:"HR",        created:"2024-01-10"}
 ];
 var groups = [
-  {id:1,name:"Marketing Team",    email:"marketing@damianmyn.com",   type:"Microsoft 365",members:12,owner:"Maria Garcia", privacy:"Public"},
-  {id:2,name:"IT Admins",         email:"itadmins@damianmyn.com",    type:"Security",     members:4, owner:"Alex Johnson", privacy:"Private"},
-  {id:3,name:"All Employees",     email:"allemployees@damianmyn.com",type:"Distribution", members:87,owner:"Alex Johnson", privacy:"Public"},
-  {id:4,name:"Finance Department",email:"finance@damianmyn.com",     type:"Microsoft 365",members:9, owner:"Sarah Lee",   privacy:"Private"}
+  {id:1,name:"Marketing Team",    email:"marketing@damianmyn.com",   type:"Microsoft 365",members:12,owner:"Johnny Cash", privacy:"Public"},
+  {id:2,name:"IT Admins",         email:"itadmins@damianmyn.com",    type:"Security",     members:4, owner:"Dave Mustaine", privacy:"Private"},
+  {id:3,name:"All Employees",     email:"allemployees@damianmyn.com",type:"Distribution", members:87,owner:"Dave Mustaine", privacy:"Public"},
+  {id:4,name:"Finance Department",email:"finance@damianmyn.com",     type:"Microsoft 365",members:9, owner:"Amy Lee",   privacy:"Private"}
 ];
 var licenses = [
   {id:1,name:"Microsoft 365 E3",               total:25,used:18,cost:"$36.00/user/mo"},
